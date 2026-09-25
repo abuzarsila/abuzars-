@@ -1,0 +1,98 @@
+{% extends 'dooors/base.html' %}
+{% block content %}
+
+<style>
+    .auth-card {
+        background: #ffffff;
+        border-radius: 30px;
+        border: none;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.1) !important;
+    }
+    .form-control-custom {
+        background: #f8f9fa;
+        border: 2px solid #f8f9fa;
+        border-radius: 15px;
+        padding: 12px 20px;
+        transition: 0.3s;
+    }
+    .form-control-custom:focus {
+        background: #fff;
+        border-color: #d4af37;
+        box-shadow: none;
+    }
+    .btn-gold {
+        background: #d4af37;
+        color: white;
+        border-radius: 15px;
+        padding: 12px;
+        font-weight: 700;
+        transition: 0.3s;
+        border: none;
+    }
+    .btn-gold:hover {
+        background: #b8962d;
+        color: white;
+        transform: translateY(-2px);
+    }
+    label {
+        font-weight: 600;
+        margin-bottom: 8px;
+        margin-left: 5px;
+        color: #555;
+    }
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        color: #dc3545;
+        font-size: 0.85rem;
+        margin-top: 5px;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card auth-card p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold text-dark">Ro'yxatdan o'tish</h2>
+                    <p class="text-muted small">Ma'lumotlarni kiriting va bizga qo'shiling</p>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            <input type="{{ field.field.widget.input_type }}" 
+                                   name="{{ field.html_name }}" 
+                                   id="{{ field.id_for_label }}"
+                                   class="form-control form-control-custom"
+                                   placeholder="{{ field.label }}ni kiriting"
+                                   required>
+                            {% if field.errors %}
+                                <div class="errorlist">
+                                    {{ field.errors|striptags }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn btn-gold w-100 mt-3 shadow-sm">
+                        HISOB YARATISH
+                    </button>
+                </form>
+
+                <div class="text-center mt-4">
+                    <p class="text-muted small">Profilingiz bormi? 
+                        <a href="{% url 'login' %}" class="text-dark fw-bold text-decoration-none">Kirish</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+

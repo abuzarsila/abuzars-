@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <h2 class="fw-bold mb-4">Admin Dashboard</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm p-4 bg-white">
+                    <h1 class="text-danger">{{ doors_count }}</h1>
+                    <p class="text-muted mb-0">Jami mahsulotlar</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm p-4 bg-white">
+                    <h1 class="text-primary">{{ likes_count }}</h1>
+                    <p class="text-muted mb-0">Jami layklar</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm p-4 bg-white">
+                    <h1 class="text-success">{{ comments_count }}</h1>
+                    <p class="text-muted mb-0">Yangi izohlar</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-5">d
+            <a href="{% url 'add_door' %}" class="btn btn-danger btn-lg me-3">+ Yangi eshik qo'shish</a>
+            <a href="{% url 'my_doors' %}" class="btn btn-outline-dark btn-lg">Eshiklarni tahrirlash</a>
+        </div>
+    </div>
+</body>
+</html>

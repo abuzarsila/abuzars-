@@ -1,0 +1,213 @@
+{% extends 'dooors/base.html' %}
+{% block content %}
+
+<style>
+    .hero-gradient {
+        background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+        padding: 100px 0;
+        color: white;
+        border-radius: 0 0 60px 60px;
+    }
+    .search-bar {
+        background: white;
+        border-radius: 100px;
+        padding: 8px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        margin-top: -35px;
+    }
+    .door-card {
+        border: none;
+        border-radius: 30px;
+        background: #fdfdfd;
+        transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .door-card:hover {
+        transform: translateY(-12px);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.1);
+    }
+    .category-btn {
+        border-radius: 50px;
+        padding: 10px 25px;
+        font-weight: 600;
+        border: 2px solid #eee;
+        color: #555;
+        transition: 0.3s;
+    }
+    .category-btn.active, .category-btn:hover {
+        background: #d4af37;
+        border-color: #d4af37;
+        color: white;
+    }
+    .door-img {
+        height: 300px;
+        object-fit: contain;
+    }
+</style>
+
+<div class="hero-gradient text-center">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-3">SFDOORS ESHIKLARI</h1>
+        <p class="lead opacity-75">Sizning uyingiz uchun eksklyuziv portal yechimlari</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="search-bar">
+                <form method="GET" action="{% url 'home' %}" class="d-flex">
+                    <input type="text" name="q" class="form-control border-0 px-4 py-3 shadow-none" placeholder="Model yoki brend nomi..." value="{{ query|default:'' }}">
+                    <button type="submit" class="btn btn-dark rounded-pill px-5 fw-bold">Qidirish</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-center gap-3 mb-5">
+        <a href="?category=Barchasi" class="category-btn text-decoration-none {% if not request.GET.category or request.GET.category == 'Barchasi' %}active{% endif %}">Barchasi</a>
+        <a href="?category=Standart" class="category-btn text-decoration-none {% if request.GET.category == 'Standart' %}active{% endif %}">Standart</a>
+        <a href="?category=Premium" class="category-btn text-decoration-none {% if request.GET.category == 'Premium' %}active{% endif %}">Premium</a>
+    </div>
+
+    <div class="row g-4">
+        {% for door in doors %}
+        <div class="col-md-6 col-lg-3">
+            <div class="card door-card h-100 p-3 shadow-sm">
+                <div class="text-center bg-light rounded-4 p-4 mb-3">
+                    {% if door.image %}
+                        <img src="{{ door.image.url }}" class="img-fluid door-img" alt="{{ door.name }}">
+                    {% else %}
+                        <div class="d-flex align-items-center justify-content-center" style="height:300px; background:#eee; border-radius:15px;">Rasm yo'q</div>
+                    {% endif %}
+                </div>
+                <div class="card-body p-2">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h5 class="fw-bold mb-0 text-dark">{{ door.name }}</h5>
+                            <small class="text-muted">{{ door.brand }}</small>
+                        </div>
+                        <span class="badge bg-dark rounded-pill">{{ door.category }}</span>
+                    </div>
+                    <h4 class="fw-bold text-dark mt-3 mb-4">{{ door.price }} UZS</h4>
+                    <button class="btn btn-outline-dark w-100 rounded-pill py-2 fw-bold" data-bs-toggle="modal" data-bs-target="#order{{door.id}}">
+                        Batafsil ko'rish
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="order{{door.id}}" tabindex="-1">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content border-0 rounded-5 overflow-hidden">
+                    <div class="modal-body p-0">
+                        <div class="row g-0">
+                            <div class="col-md-6 bg-light d-flex align-items-center justify-content-center p-5">
+                                {% if door.image %}
+                                    <img src="{{ door.image.url }}" class="img-fluid shadow-lg rounded-3">
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 p-5">
+                                <button type="button" class="btn-close float-end" data-bs-dismiss="modal"></button>
+                                <h2 class="fw-bold mb-4">{{ door.name }}</h2>
+
+                                <div class="mb-4">
+                                    <h6 class="text-uppercase text-muted small fw-bold">Xususiyatlari:</h6>
+                                    <table class="table table-sm border-0">
+                                        <tr><td class="text-muted border-0">Brend:</td><td class="fw-bold border-0">{{ door.brand }}</td></tr>
+                                        <tr><td class="text-muted border-0">Qoplama:</td><td class="fw-bold border-0">{{ door.coating }}</td></tr>
+                                        <tr><td class="text-muted border-0">Tuzilishi:</td><td class="fw-bold border-0">{{ door.structure }}</td></tr>
+                                    </table>
+                                    {% if door.description %}
+                                        <p class="mt-3 text-muted small">{{ door.description }}</p>
+                                    {% endif %}
+                                </div>
+
+                                <h2 class="fw-bold text-dark mb-4">{{ door.price }} UZS</h2>
+
+                                {% if user.is_authenticated %}
+                                    <form id="orderForm{{door.id}}" onsubmit="sendOrder(event, '{{ door.id }}')">
+                                        {% csrf_token %}
+                                        <div class="bg-light p-3 rounded-4 mb-3">
+                                            <label class="fw-bold text-dark mb-2">Telefon raqamingiz:</label>
+                                            <input type="text" name="phone" id="phone{{door.id}}" class="form-control mb-3 rounded-pill py-2 px-3 border-0 shadow-sm" placeholder="+998 90 000 00 00" required>
+                                        <a href="https://t.me/hjgvwfgjevefugebfveuhj_bot?start={{door.id}}" target="_blank"
+                                        class="btn btn-dark w-100 rounded-pill py-2 fw-bold">
+                                        <i class="bi bi-telegram me-2"></i> Telegram orqali buyurtma
+                                        </a>    
+                                            <div id="status{{door.id}}" class="mt-3 text-center small fw-bold" style="display:none;"></div>
+                                        </div>
+                                    </form>
+                                {% else %}
+                                    <div class="text-center bg-light p-4 rounded-4 shadow-sm">
+                                        <p class="text-muted mb-3">Buyurtma berish uchun tizimga kiring</p>
+                                        <div class="d-grid gap-2">
+                                            <a href="{% url 'login' %}" class="btn btn-dark rounded-pill fw-bold">Kirish</a>
+                                            <a href="{% url 'register' %}" class="btn btn-outline-dark rounded-pill fw-bold">Ro'yxatdan o'tish</a>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                <p class="small text-muted text-center mt-3"><i class="bi bi-shield-check"></i> Xavfsiz buyurtma va bepul xizmatlar</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <h3 class="mt-4 text-muted">Afsuski, mahsulot topilmadi.</h3>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if doors.has_other_pages %}
+    <nav class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if doors.has_previous %}
+                <li class="page-item"><a class="page-link rounded-pill mx-1 border-0 shadow-sm" href="?page={{ doors.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if query %}&q={{ query }}{% endif %}">Orqaga</a></li>
+            {% endif %}
+            <li class="page-item active"><span class="page-link rounded-pill mx-1 border-0 shadow-sm bg-dark">{{ doors.number }}</span></li>
+            {% if doors.has_next %}
+                <li class="page-item"><a class="page-link rounded-pill mx-1 border-0 shadow-sm" href="?page={{ doors.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if query %}&q={{ query }}{% endif %}">Oldinga</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<script>
+function sendOrder(event, doorId) {
+    event.preventDefault();
+    const phone = document.getElementById('phone' + doorId).value;
+    const statusDiv = document.getElementById('status' + doorId);
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    statusDiv.style.display = 'block';
+    statusDiv.innerHTML = '<span class="text-primary">Yuborilmoqda...</span>';
+
+    fetch(`/send-telegram-order/${doorId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `phone=${encodeURIComponent(phone)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            statusDiv.innerHTML = '<span class="text-success">✅ Buyurtma yuborildi!</span>';
+            document.getElementById('phone' + doorId).value = '';
+        } else {
+            statusDiv.innerHTML = '<span class="text-danger">❌ Xatolik yuz berdi.</span>';
+        }
+    })
+    .catch(() => {
+        statusDiv.innerHTML = '<span class="text-danger">❌ Tarmoq xatosi.</span>';
+    });
+}
+</script>
+
+{% endblock %}

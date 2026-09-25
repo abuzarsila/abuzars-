@@ -1,0 +1,38 @@
+{% extends 'dooors/base.html' %}
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">Eshiklar Ro'yxati</h2>
+        <a href="{% url 'add_door' %}" class="btn btn-dark rounded-pill px-4">+ Qo'shish</a>
+    </div>
+    <div class="card border-0 shadow rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Rasm</th>
+                        <th>Nomi</th>
+                        <th>Narxi</th>
+                        <th>Kategoriya</th>
+                        <th class="text-end pe-4">Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for door in doors %}
+                    <tr>
+                        <td class="ps-4"><img src="{{ door.image.url }}" class="rounded shadow-sm" width="50"></td>
+                        <td class="fw-bold">{{ door.name }}</td>
+                        <td>{{ door.price }} UZS</td>
+                        <td><span class="badge bg-secondary rounded-pill">{{ door.category }}</span></td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'edit_door' door.pk %}" class="btn btn-sm btn-outline-dark rounded-pill mx-1 px-3">Tahrirlash</a>
+                            <a href="{% url 'delete_door' door.pk %}" class="btn btn-sm btn-outline-danger rounded-pill px-3">O'chirish</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
